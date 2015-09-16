@@ -1,0 +1,567 @@
+diff -r 9f04862aa72f .hgignore
+--- a/.hgignore	Tue Sep 16 06:03:46 2014 +0900
++++ b/.hgignore	Wed Sep 16 10:24:39 2015 -0400
+@@ -25,3 +25,4 @@
+ ^GRTAGS
+ ^GSYMS
+ ^GTAGS
++applications
+diff -r 9f04862aa72f model/dce-dirent.cc
+--- a/model/dce-dirent.cc	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/dce-dirent.cc	Wed Sep 16 10:24:39 2015 -0400
+@@ -172,6 +172,32 @@
+   return ret;
+ }
+ 
++struct dirent64 * dce_readdir64 (DIR *dirp)
++{
++  NS_LOG_FUNCTION (Current () << UtilsGetNodeId ());
++  NS_ASSERT (Current () != 0);
++  Thread *current = Current ();
++  struct my__dirstream *ds = (struct my__dirstream *) dirp;
++  int saveFd = ds->fd;
++  if (saveFd >= 0)
++    {
++      current->err = EBADF;
++      return 0;
++    }
++  int realFd = getRealFd (-saveFd, current);
++  if (realFd < 0)
++    {
++      ds->fd = saveFd;
++      current->err = EBADF;
++      return 0;
++    }
++  ds->fd = realFd;
++  struct dirent64 *ret = readdir64 (dirp);
++  ds->fd = saveFd;
++
++  return ret;
++}
++
+ int dce_readdir_r (DIR *dirp, struct dirent *entry, struct dirent **result)
+ {
+   NS_LOG_FUNCTION (Current () << UtilsGetNodeId ());
+diff -r 9f04862aa72f model/dce-dirent.h
+--- a/model/dce-dirent.h	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/dce-dirent.h	Wed Sep 16 10:24:39 2015 -0400
+@@ -31,6 +31,7 @@
+ DIR * dce_opendir (const char *name);
+ DIR * dce_fdopendir (int fd);
+ struct dirent * dce_readdir (DIR *dirp);
++struct dirent64 * dce_readdir64 (DIR *dirp);
+ int dce_readdir_r (DIR *dirp, struct dirent *entry, struct dirent **result);
+ int dce_closedir (DIR *dirp);
+ int dce_dirfd (DIR *dirp);
+diff -r 9f04862aa72f model/dce-env.cc
+--- a/model/dce-env.cc	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/dce-env.cc	Wed Sep 16 10:24:39 2015 -0400
+@@ -4,6 +4,7 @@
+ #include "ns3/log.h"
+ #include "ns3/assert.h"
+ #include <string.h>
++#include <cerrno>
+ 
+ NS_LOG_COMPONENT_DEFINE ("SimuEnv");
+ 
+@@ -147,3 +148,11 @@
+   **penvp = 0;
+   return 0;
+ }
++
++char * dce_realpath (const char *path, char *resolved_path)
++{
++  NS_LOG_FUNCTION (Current () << UtilsGetNodeId () << path);
++  std::string stringPath = std::string(path);
++//std::cout << "Given path: " << path << "; real path? " << UtilsGetVirtualFilePath (stringPath) << " " << UtilsGetRealFilePath (stringPath) << std::endl;
++  return realpath (path, resolved_path);
++}
+diff -r 9f04862aa72f model/dce-fd.cc
+--- a/model/dce-fd.cc	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/dce-fd.cc	Wed Sep 16 10:24:39 2015 -0400
+@@ -846,3 +846,26 @@
+   NS_LOG_FUNCTION (current << UtilsGetNodeId () << fd);
+   OPENED_FD_METHOD (int, Fsync ())
+ }
++
++ssize_t dce_sendfile(int out_fd, int in_fd, off_t * offset, size_t count)
++{
++  void *read_buf = NULL;
++  read_buf = malloc (count);
++
++  ssize_t res;
++  if (offset)
++    {
++      res = dce_pread (in_fd, read_buf, count, *offset);
++    }
++  else
++    {
++      res = dce_read (in_fd, read_buf, count);
++    }
++
++  if (res == -1) return res;
++
++  ssize_t ret = dce_write (out_fd, read_buf, count);
++
++  free (read_buf);
++  return ret;
++}
+diff -r 9f04862aa72f model/dce-poll.cc
+--- a/model/dce-poll.cc	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/dce-poll.cc	Wed Sep 16 10:24:39 2015 -0400
+@@ -246,3 +246,8 @@
+     }
+   return pollRet;
+ }
++
++long int dce___fdelt_chk (long int d)
++{
++  return d / (8 * sizeof (int));
++}
+diff -r 9f04862aa72f model/dce-pthread-mutex.cc
+--- a/model/dce-pthread-mutex.cc	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/dce-pthread-mutex.cc	Wed Sep 16 10:24:39 2015 -0400
+@@ -100,7 +100,8 @@
+   struct PthreadMutexAttr *attr = (struct PthreadMutexAttr *)attribute;
+   if (attr != 0
+       && attr->type != PTHREAD_MUTEX_RECURSIVE
+-      && attr->type != PTHREAD_MUTEX_NORMAL)
++      && attr->type != PTHREAD_MUTEX_NORMAL
++      && attr->type != PTHREAD_MUTEX_ERRORCHECK)
+     {
+       return EINVAL;
+     }
+diff -r 9f04862aa72f model/dce-pthread.cc
+--- a/model/dce-pthread.cc	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/dce-pthread.cc	Wed Sep 16 10:24:39 2015 -0400
+@@ -403,6 +403,20 @@
+ 
+   return 0;
+ }
++int
++dce_pthread_setname_np (pthread_t th, const char *name)
++{
++  Thread *current = Current ();
++  NS_LOG_FUNCTION (current << UtilsGetNodeId () << PthreadToPid (th) 
++                   << PthreadToTid (th) << name);
++  NS_ASSERT (current != 0);
++  Thread *thread = current->process->manager->SearchThread (PthreadToPid (th),
++                                                            PthreadToTid (th));
++
++  // XXX: set name
++  return 0;
++}
++
+ #if 0
+ int dce_pthread_sigmask (int how, const sigset_t *restrict set,
+                          sigset_t *restrict oset)
+diff -r 9f04862aa72f model/dce-signal.h
+--- a/model/dce-signal.h	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/dce-signal.h	Wed Sep 16 10:24:39 2015 -0400
+@@ -21,6 +21,7 @@
+ void dce___stack_chk_fail (void);
+ int dce_sigprocmask (int how, const sigset_t *set, sigset_t *oldset);
+ int dce_sigwait (const sigset_t *set, int *sig);
++int dce_pthread_setname_np (pthread_t thread, const char *name);
+ 
+ #ifdef __cplusplus
+ }
+diff -r 9f04862aa72f model/dce-stdlib.cc
+--- a/model/dce-stdlib.cc	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/dce-stdlib.cc	Wed Sep 16 10:24:39 2015 -0400
+@@ -118,8 +118,7 @@
+ }
+ 
+ FILE * dce_tmpfile(void) {
+-	int fd = dce_mkstemp ("temp");
+-  	return dce_fdopen(fd, "w+");
++    return dce_fopen("temp.dat", "w+");
+ }
+ 
+ int dce_rename (const char *oldpath, const char *newpath)
+diff -r 9f04862aa72f model/dce-stdlib.h
+--- a/model/dce-stdlib.h	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/dce-stdlib.h	Wed Sep 16 10:24:39 2015 -0400
+@@ -23,6 +23,7 @@
+ int dce_setenv (const char *name, const char *value, int overwrite);
+ int dce_unsetenv (const char *name);
+ int dce_clearenv (void);
++char * dce_realpath (const char *path, char *resolved_path);
+ int dce_mkstemp (char *temp);
+ FILE * dce_tmpfile(void);
+ int dce_rename (const char *oldpath, const char *newpath);
+diff -r 9f04862aa72f model/dce-string.cc
+--- a/model/dce-string.cc	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/dce-string.cc	Wed Sep 16 10:24:39 2015 -0400
+@@ -36,3 +36,18 @@
+ {
+   return (char*)strstr (u, d);
+ }
++
++void * dce_memcpy (void *dest, const void *source, size_t num)
++{
++    return memcpy(dest, source, num);
++}
++
++void * dce___rawmemchr (const void *s, int c)
++{
++	return strchr ((char *)s, c);
++}
++
++void * dce___memcpy_chk(void * dest, const void * src, size_t len, size_t destlen)
++{
++	return memcpy(dest, src, len);
++}
+diff -r 9f04862aa72f model/dce-string.h
+--- a/model/dce-string.h	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/dce-string.h	Wed Sep 16 10:24:39 2015 -0400
+@@ -14,6 +14,9 @@
+                          size_t __destlen);
+ char * dce_strpbrk (const char *s, const char *accept);
+ char * dce_strstr (const char *h, const char *n);
++void * dce_memcpy (void *dest, const void *source, size_t num);
++void * dce___rawmemchr (const void *s, int c);
++void * dce___memcpy_chk(void * dest, const void * src, size_t len, size_t destlen);
+ 
+ #ifdef __cplusplus
+ }
+diff -r 9f04862aa72f model/dce-time.cc
+--- a/model/dce-time.cc	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/dce-time.cc	Wed Sep 16 10:24:39 2015 -0400
+@@ -9,6 +9,7 @@
+ #include "sys/dce-timerfd.h"
+ #include "unix-timer-fd.h"
+ #include "file-usage.h"
++#include <iostream>
+ 
+ NS_LOG_COMPONENT_DEFINE ("DceTime");
+ 
+diff -r 9f04862aa72f model/dce-unistd.h
+--- a/model/dce-unistd.h	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/dce-unistd.h	Wed Sep 16 10:24:39 2015 -0400
+@@ -4,6 +4,7 @@
+ #include <sys/types.h>
+ #include <stdarg.h>
+ #include <unistd.h>
++#include <sys/sendfile.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {
+@@ -87,6 +88,8 @@
+ ssize_t dce_readlink (const char *p, char *b, size_t bufsize);
+ int dce_fsync(int fd);
+ 
++ssize_t dce_sendfile(int out_fd, int in_fd, off_t * offset, size_t count);
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff -r 9f04862aa72f model/kernel-socket-fd-factory.cc
+--- a/model/kernel-socket-fd-factory.cc	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/kernel-socket-fd-factory.cc	Wed Sep 16 10:24:39 2015 -0400
+@@ -426,6 +426,7 @@
+                                     uint16_t protocol, const Address & from,
+                                     const Address &to, NetDevice::PacketType type)
+ {
++  NS_LOG_FUNCTION (device << p << protocol << from << to << type);
+   struct SimDevice *dev = DevToDev (device);
+   if (dev == 0)
+     {
+diff -r 9f04862aa72f model/libc-dce.cc
+--- a/model/libc-dce.cc	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/libc-dce.cc	Wed Sep 16 10:24:39 2015 -0400
+@@ -13,6 +13,7 @@
+ #include "sys/dce-stat.h"
+ #include "sys/dce-select.h"
+ #include "sys/dce-timerfd.h"
++#include "sys/dce-epoll.h"
+ #include "dce-unistd.h"
+ #include "dce-netdb.h"
+ #include "dce-pthread.h"
+@@ -98,6 +99,7 @@
+ #include <termio.h>
+ #include <math.h>
+ #include <assert.h>
++#include <link.h>
+ 
+ extern void __cxa_finalize (void *d);
+ extern int __cxa_atexit (void (*func)(void *), void *arg, void *d);
+@@ -116,6 +118,10 @@
+ extern char * __strcpy_chk (char *__restrict __dest,
+                             const char *__restrict __src,
+                             size_t __destlen);
++
++extern void * __rawmemchr (const void *s, int c);
++extern void * __memcpy_chk(void * dest, const void * src, size_t len, size_t destlen);
++
+ // from glibc's stdio.h
+ extern int __sprintf_chk (char *, int, size_t, const char *, ...) __THROW;
+ extern int __snprintf_chk (char *, size_t, int, size_t, const char *, ...)
+@@ -140,6 +146,21 @@
+                                   _G_va_list) __THROW;
+ extern void __stack_chk_fail (void);
+ 
++// from glibc's bits/fnctl2.h
++#ifndef __USE_FILE_OFFSET64
++extern int __open_2 (const char *__path, int __oflag) __nonnull ((1));
++extern int __REDIRECT (__open_alias, (const char *__path, int __oflag, ...),
++		       open) __nonnull ((1));
++#else
++extern int __REDIRECT (__open_2, (const char *__path, int __oflag),
++		       __open64_2) __nonnull ((1));
++extern int __REDIRECT (__open_alias, (const char *__path, int __oflag, ...),
++		       open64) __nonnull ((1));
++#endif
++
++// from glibc's bits/select2.h
++extern long int __fdelt_chk (long int __d);
++
+ typedef void (*func_t)(...);
+ 
+ extern "C" {
+diff -r 9f04862aa72f model/libc-ns3.h
+--- a/model/libc-ns3.h	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/libc-ns3.h	Wed Sep 16 10:24:39 2015 -0400
+@@ -99,10 +99,12 @@
+ #ifdef HAVE___SECURE_GETENV
+ NATIVE (__secure_getenv)
+ #endif
++NATIVE (secure_getenv)
+ DCE (putenv)
+ DCE (setenv)
+ DCE (unsetenv)
+ DCE (clearenv)
++DCE (realpath)
+ NATIVE (qsort)
+ DCE (abort)
+ DCE (__assert_fail)
+@@ -117,12 +119,15 @@
+ NATIVE (strerror_r)
+ NATIVE (strcoll)
+ NATIVE (memset)
+-NATIVE (memcpy)
++//NATIVE (memcpy)
++DCE (memcpy)
++DCE (__memcpy_chk)
+ NATIVE (bcopy)
+ NATIVE (memcmp)
+ NATIVE (memmove)
+ NATIVE_EXPLICIT (memchr, void * (*)(void *, int, size_t))
+ NATIVE_EXPLICIT (memrchr, void * (*)(void *, int, size_t))
++DCE (__rawmemchr)
+ NATIVE (strcpy)
+ NATIVE (strncpy)
+ NATIVE (strcat)
+@@ -143,8 +148,9 @@
+ NATIVE_EXPLICIT (rindex, char * (*)(char *, int))
+ NATIVE_EXPLICIT (strtok, char * (*)(char *, const char *))
+ NATIVE_EXPLICIT (strtok_r,  char * (*)(char *, const char *, char **))
++NATIVE_EXPLICIT (__strtok_r,  char * (*)(char *, const char *, char **))
+ NATIVE (strsep)
+-
++NATIVE (stpcpy)
+ 
+ // LOCALE.H
+ DCE    (setlocale)
+@@ -261,6 +267,9 @@
+ DCE (initgroups)
+ DCE (fsync)
+ 
++DCE (__fdelt_chk)
++DCE (sendfile)
++
+ // SYS/UIO.H
+ DCE (readv)
+ DCE (writev)
+@@ -280,7 +289,7 @@
+ DCE (fsetpos)
+ DCE (printf)
+ NATIVE (fprintf)
+-NATIVE (sprintf)
++NATIVE_WITH_ALIAS2 (sprintf, __sprintf_chk)
+ DCE (asprintf)
+ DCE (vasprintf)
+ NATIVE (dprintf)
+@@ -317,6 +326,8 @@
+ NATIVE_WITH_ALIAS2 (sscanf, __isoc99_sscanf)
+ NATIVE (flockfile)
+ NATIVE (funlockfile)
++NATIVE (popen)
++NATIVE (pclose)
+ 
+ // STDARG.H
+ DCE (vprintf)
+@@ -325,7 +336,7 @@
+ 
+ // FCNTL.H
+ DCE (fcntl)
+-DCE (open)
++DCE_WITH_ALIAS2 (open, __open_2)
+ DCE (open64)
+ DCE (unlinkat)
+ 
+@@ -379,6 +390,11 @@
+ // POLL.H
+ DCE (poll)
+ 
++// SYS/EPOLL.H
++DCE (epoll_create)
++DCE (epoll_ctl)
++DCE (epoll_wait)
++
+ // SIGNAL.H
+ DCE (signal)
+ DCE (sigaction)
+@@ -391,6 +407,8 @@
+ DCE    (sigwait)
+ DCE    (kill)
+ NATIVE (sys_siglist)
++NATIVE (__libc_current_sigrtmin)
++NATIVE (__libc_current_sigrtmax)
+ 
+ // PTHREAD.H
+ DCE (pthread_create)
+@@ -421,11 +439,16 @@
+ DCE_EXPLICIT (pthread_cond_wait, int, pthread_cond_t*, pthread_mutex_t*)
+ DCE (pthread_condattr_destroy)
+ DCE (pthread_condattr_init)
++DCE (pthread_setname_np)
+ NATIVE (pthread_rwlock_init)
+ NATIVE (pthread_rwlock_unlock)
+ NATIVE (pthread_rwlock_wrlock)
+ NATIVE (pthread_rwlock_rdlock)
+ NATIVE (pthread_rwlock_destroy)
++NATIVE (pthread_rwlockattr_init)
++NATIVE (pthread_rwlockattr_setkind_np)
++NATIVE (pthread_rwlockattr_destroy)
++NATIVE (posix_memalign)
+ NATIVE (pthread_setcancelstate)
+ NATIVE (pthread_sigmask)
+ NATIVE (pthread_equal)
+@@ -433,6 +456,9 @@
+ NATIVE (pthread_spin_lock)
+ NATIVE (pthread_spin_unlock)
+ NATIVE (pthread_spin_destroy)
++NATIVE (pthread_attr_init)
++NATIVE (pthread_attr_setscope)
++NATIVE (pthread_attr_destroy)
+ 
+ 
+ // SEMAPHORE.H
+@@ -474,6 +500,8 @@
+ NATIVE (isdigit)
+ NATIVE (isxdigit)
+ NATIVE (isalnum)
++NATIVE (isspace)
++NATIVE (__ctype_toupper_loc)
+ 
+ // SYS/TIMERFD.H
+ DCE (timerfd_create)
+@@ -489,6 +517,7 @@
+ DCE (fdopendir)
+ DCE (readdir)
+ DCE (readdir_r)
++DCE (readdir64)
+ DCE (closedir)
+ DCE (dirfd)
+ DCE (rewinddir)
+@@ -611,7 +640,21 @@
+ NATIVE (llrintl)
+ NATIVE (ceil)
+ NATIVE (floor)
++NATIVE (exp)
++NATIVE (__isnan)
++NATIVE (__isinf)
++NATIVE (__finite)
++NATIVE (log)
++NATIVE (pow)
++NATIVE (modf)
++NATIVE (fmod)
++NATIVE (frexp)
++NATIVE (ldexp)
+ 
++// libio.h
++NATIVE (__uflow)
++
++NATIVE (dl_iterate_phdr)
+ #undef DCE
+ #undef DCET
+ #undef DCE_EXPLICIT
+diff -r 9f04862aa72f model/pipe-fd.cc
+--- a/model/pipe-fd.cc	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/pipe-fd.cc	Wed Sep 16 10:24:39 2015 -0400
+@@ -384,6 +384,10 @@
+       m_statusFlags = arg;
+       return 0;
+       break;
++    case F_GETFD:
++    case F_SETFD:
++      NS_LOG_WARN ("GETFD/SETFD ot implemented on pipe");
++      break;
+     default:
+       NS_FATAL_ERROR ("fcntl not implemented on pipe");
+       return -1;
+diff -r 9f04862aa72f model/sys/dce-select.h
+--- a/model/sys/dce-select.h	Tue Sep 16 06:03:46 2014 +0900
++++ b/model/sys/dce-select.h	Wed Sep 16 10:24:39 2015 -0400
+@@ -7,6 +7,8 @@
+ extern "C" {
+ #endif
+ 
++long int dce___fdelt_chk (long int d);
++
+ int dce_select (int nfds, fd_set *readfds, fd_set *writefds,
+                 fd_set *exceptfds, struct timeval *timeout);
+ 
+diff -r 9f04862aa72f ns3waf/__init__.py
+--- a/ns3waf/__init__.py	Tue Sep 16 06:03:46 2014 +0900
++++ b/ns3waf/__init__.py	Wed Sep 16 10:24:39 2015 -0400
+@@ -434,8 +434,8 @@
+         _generate_pcfile(bld, name, use, bld.env['PREFIX'], task.outputs[0].abspath())
+         return 0
+     target = os.path.join('lib', 'pkgconfig', 'libns3-dev-%s-%s.pc' % (name, bld.env['LIB_SUFFIX']))
+-    bld(rule=run, target=target, always=True)
+-    bld.install_files(os.path.join('${PREFIX}', 'lib', 'pkgconfig'), [target])
++#    bld(rule=run, target=target, always=True)
++#    bld.install_files(os.path.join('${PREFIX}', 'lib', 'pkgconfig'), [target])
+ 
+ class Module:
+     def __init__(self, bld, name, *k, **kw):
+diff -r 9f04862aa72f test/dce-manager-test.cc
+--- a/test/dce-manager-test.cc	Tue Sep 16 06:03:46 2014 +0900
++++ b/test/dce-manager-test.cc	Wed Sep 16 10:24:39 2015 -0400
+@@ -201,6 +201,7 @@
+     {  "test-random", 0, "", false, false, NS3_STACK|LINUX_STACK|FREEBSD_STACK},
+     {  "test-local-socket", 0, "", false, false, NS3_STACK|LINUX_STACK|FREEBSD_STACK},
+     {  "test-poll", 3200, "", true, false, NS3_STACK|LINUX_STACK},
++    {  "test-epoll", 3200, "", true, false, NS3_STACK|LINUX_STACK},
+     {  "test-tcp-socket", 320, "", true, false, NS3_STACK|LINUX_STACK},
+     {  "test-exec", 0, "", false, true, NS3_STACK|LINUX_STACK|FREEBSD_STACK},
+     {  "test-raw-socket", 320, "", true, false, NS3_STACK|LINUX_STACK|FREEBSD_STACK},
+diff -r 9f04862aa72f wscript
+--- a/wscript	Tue Sep 16 06:03:46 2014 +0900
++++ b/wscript	Wed Sep 16 10:24:39 2015 -0400
+@@ -263,6 +263,7 @@
+              ['test-fork', []],
+              ['test-local-socket', ['PTHREAD']],
+              ['test-poll', ['PTHREAD']],
++             ['test-epoll', []],
+              ['test-tcp-socket', ['PTHREAD']],
+              ['test-exec', []],
+              ['test-exec-target-1', []],
+@@ -552,6 +553,7 @@
+         'model/unix-datagram-socket-fd.cc',
+         'model/unix-stream-socket-fd.cc',
+         'model/unix-timer-fd.cc',
++        'model/linux-epoll-fd.cc',
+         'model/dce-fd.cc',
+         'model/dce-stdio.cc',
+         'model/dce-pthread.cc',
+@@ -597,6 +599,7 @@
+         'model/wait-queue.cc',
+         'model/file-usage.cc',
+         'model/dce-poll.cc',
++        'model/dce-epoll.cc',
+         'model/ipv4-dce-routing.cc',
+         'model/dce-credentials.cc',
+         'model/dce-pwd.cc',

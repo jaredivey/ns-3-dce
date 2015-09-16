@@ -1,0 +1,279 @@
+NODE EXIT-CODE PID NS3-START-TIME NS3-END-TIME REAL-START-TIME REAL-END-TIME NS3-DURATION REAL-DURATION CMDLINE
+0 256 56392 0 0 1438952889 1438952890 0 1 nox_core -v -i ptcp:10.0.0.1:6633 switch
+0 256 56392 0 0 1438952979 1438952980 0 1 nox_core -v -i ptcp:0.0.0.0:6633 switch
+0 256 56392 0 0 1438953106 1438953107 0 1 nox_core -v -i ptcp:0.0.0.0:6633
+0 256 56392 0 0 1438953257 1438953259 0 2 nox_core -v -i ptcp:0.0.0.0:6633
+0 256 56392 0 0 1438953351 1438953432 0 81 nox_core -v -i ptcp:0.0.0.0:6633
+0 256 53512 0 0 1438953628 1438953632 0 4 nox_core -v -i ptcp:0.0.0.0:6633
+0 0 53514 1 1 1438953632 1438953632 0 0 ip -f inet addr add 192.168.1.2/24 dev sim0
+0 0 53515 2 2 1438953632 1438953632 0 0 ip link set sim0 up arp off
+0 0 53516 3 3 1438953632 1438953632 0 0 ip -f inet addr add 192.168.2.2/24 dev sim1
+0 0 53517 4 4 1438953632 1438953632 0 0 ip link set sim1 up arp off
+0 256 53512 0 0 1438953663 1438953664 0 1 nox_core -v -i ptcp:0.0.0.0:6633
+0 0 53514 1 1 1438953665 1438953665 0 0 ip -f inet addr add 192.168.1.2/24 dev sim0
+0 0 53515 2 2 1438953665 1438953665 0 0 ip link set sim0 up arp off
+0 0 53516 3 3 1438953665 1438953665 0 0 ip -f inet addr add 192.168.2.2/24 dev sim1
+0 0 53517 4 4 1438953665 1438953665 0 0 ip link set sim1 up arp off
+0 256 53512 200000000 200000000 1438954449 1438954449 0 0 ip link set lo up
+0 256 53513 200000000 200000000 1438954449 1438954449 0 0 ip link show
+0 256 53514 299999999 299999999 1438954449 1438954449 0 0 ip route show table all
+0 256 53515 400000000 400000000 1438954449 1438954449 0 0 ip addr list
+0 256 53516 2000000000 2000000000 1438954449 1438954450 0 1 nox_core -v -i ptcp:0.0.0.0:6633
+0 256 53512 200000000 200000000 1438954474 1438954475 0 1 ip link set lo up
+0 256 53513 200000000 200000000 1438954474 1438954475 0 1 ip link show
+0 256 53514 299999999 299999999 1438954475 1438954475 0 0 ip route show table all
+0 256 53515 400000000 400000000 1438954475 1438954475 0 0 ip addr list
+0 256 53516 2000000000 2000000000 1438954475 1438954475 0 0 nox_core -v -i ptcp:0.0.0.0:6633
+0 256 53512 200000000 200000000 1438960314 1438960315 0 1 ip link set lo up
+0 256 53513 200000000 200000000 1438960314 1438960315 0 1 ip link show
+0 256 53514 299999999 299999999 1438960315 1438960315 0 0 ip route show table all
+0 256 53515 400000000 400000000 1438960315 1438960315 0 0 ip addr list
+0 256 53516 2000000000 2000000000 1438960315 1438960315 0 0 nox_core -v -i ptcp:0.0.0.0:6633
+0 256 53512 200000000 200000000 1438960656 1438960656 0 0 ip link set lo up
+0 256 53513 200000000 200000000 1438960656 1438960656 0 0 ip link show
+0 256 53514 299999999 299999999 1438960656 1438960656 0 0 ip route show table all
+0 256 53515 400000000 400000000 1438960656 1438960656 0 0 ip addr list
+0 256 53516 2000000000 2000000000 1438960656 1438960656 0 0 nox_core -v -i ptcp:0.0.0.0:6633
+0 256 53512 200000000 200000000 1438962762 1438962762 0 0 ip link set lo up
+0 256 53513 200000000 200000000 1438962762 1438962762 0 0 ip link show
+0 256 53514 299999999 299999999 1438962762 1438962762 0 0 ip route show table all
+0 256 53515 400000000 400000000 1438962762 1438962762 0 0 ip addr list
+0 256 53516 2000000000 2000000000 1438962762 1438962763 0 1 nox_core -v -i ptcp:0.0.0.0:6633
+0 256 53512 200000000 200000000 1438962772 1438962772 0 0 ip link set lo up
+0 256 53513 200000000 200000000 1438962772 1438962772 0 0 ip link show
+0 256 53514 299999999 299999999 1438962772 1438962772 0 0 ip route show table all
+0 256 53515 400000000 400000000 1438962772 1438962772 0 0 ip addr list
+0 256 53516 2000000000 2000000000 1438962772 1438962773 0 1 nox_core -v -i ptcp:0.0.0.0:6633
+0 256 53512 200000000 200000000 1438964206 1438964206 0 0 ip link set lo up
+0 256 53513 200000000 200000000 1438964206 1438964206 0 0 ip link show
+0 256 53514 299999999 299999999 1438964206 1438964206 0 0 ip route show table all
+0 256 53515 400000000 400000000 1438964206 1438964206 0 0 ip addr list
+0 256 53516 2000000000 2000000000 1438964206 1438964207 0 1 nox_core -v -i ptcp:0.0.0.0:6633 switch
+0 256 53512 0 0 1438971050 1438971050 0 0 python2.7.10 hello.py
+0 256 53512 0 0 1438971568 1438971568 0 0 python2.7.10 hello.py
+0 256 53512 0 0 1438971601 1438971601 0 0 python2.7.10 hello.py
+0 256 53512 0 0 1438971628 1438971629 0 1 python2.7.10 hello.py
+0 256 53512 0 0 1438971851 1438971852 0 1 python2.7.10 hello.py
+0 256 53512 0 0 1438971911 1438971911 0 0 python2.7.10 hello.py
+0 256 53512 0 0 1438971951 1438971952 0 1 python2.7.10 hello.py
+0 256 53512 0 0 1438971994 1438971995 0 1 python2.7.10 hello.py
+0 256 53512 0 0 1438972043 1438972044 0 1 python2.7.10 hello.py
+0 256 53512 0 0 1438972085 1438972085 0 0 python2.7.10 hello.py
+0 256 53512 0 0 1438972107 1438972107 0 0 python2.7.10 hello.py
+0 256 53512 0 0 1438972432 1438972433 0 1 python2.7.10 hello.py
+0 256 53512 0 0 1438972453 1438972453 0 0 python2.7.10 hello.py
+0 512 53512 0 0 1438973800 1438973800 0 0 python2.7.10 -S hello.py
+0 512 53512 0 0 1438973851 1438973851 0 0 python2.7.10 -S hello.py
+0 512 53512 0 0 1438974203 1438974204 0 1 python2.7.10 -S hello.py
+0 512 53512 0 0 1438974220 1438974221 0 1 python2.7.10 -S hello.py
+0 512 53512 0 0 1438974313 1438974313 0 0 python2.7.10 -S hello.py
+0 512 53512 0 0 1438974355 1438974356 0 1 python2.7.10 -S hello.py
+0 512 53512 0 0 1438974419 1438974419 0 0 python2.7.10 -S hello.py
+0 256 53512 0 0 1438974441 1438974441 0 0 python2.7.10 hello.py
+0 256 53512 0 0 1438974535 1438974535 0 0 python2.7.10 hello.py
+0 256 53512 0 0 1438974611 1438974611 0 0 python2.7.10 hello.py
+0 256 53512 0 0 1438974737 1438974737 0 0 python2.7.10 -v hello.py
+0 256 53512 0 0 1438976240 1438976240 0 0 python2.7.10 -v hello.py
+0 256 53512 0 0 1438976394 1438976394 0 0 python2.7.10 -v hello.py
+0 256 53512 0 0 1438976691 1438976692 0 1 python2.7.10 -v hello.py
+0 512 53512 0 0 1438976918 1438976918 0 0 python2.7.10 -v -S hello.py
+0 512 53512 0 0 1439226144 1439226145 0 1 python2.7.10 -v -S hello.py
+0 512 53512 0 0 1439226390 1439226391 0 1 python2.7.10 -v -S hello.py
+0 512 53512 0 0 1439226531 1439226531 0 0 python2.7.10 -v -S hello.py
+0 512 53512 0 0 1439226630 1439226630 0 0 python2.7.10 -v -S hello.py
+0 512 53512 0 0 1439226767 1439226767 0 0 python2.7.10 -v -S hello.py
+0 512 53512 0 0 1439227260 1439227260 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439227328 1439227329 0 1 python2.7.10 -v hello.py
+0 0 53512 0 0 1439228204 1439228204 0 0 python2.7.10 -v -V
+0 256 53512 0 0 1439228251 1439228252 0 1 python2.7.10 -v /home/ubuntu/dce/source/myscripts/python/hello.py
+0 512 53512 0 0 1439228268 1439228268 0 0 python2.7.10 -v -S /home/ubuntu/dce/source/myscripts/python/hello.py
+0 512 53512 0 0 1439228364 1439228365 0 1 python2.7.10 -v -S /home/ubuntu/dce/source/myscripts/python/hello.py
+0 512 53512 0 0 1439228628 1439228629 0 1 python2.7.10 -v -S /home/ubuntu/dce/source/myscripts/python/hello.py
+0 512 53512 0 0 1439228700 1439228701 0 1 python2.7.10 -v -S /home/ubuntu/dce/source/ns-3-dce/myscripts/python/hello.py
+0 0 53512 0 0 1439232554 1439232554 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439232612 1439232613 0 1 python2.7.10 -v hello.py
+0 0 53512 0 0 1439232681 1439232681 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439233035 1439233035 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439233226 1439233226 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439233344 1439233344 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439233381 1439233381 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439233397 1439233397 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439233614 1439233614 0 0 python2.7.10 -v hello.py
+0 256 53512 0 0 1439234480 1439234480 0 0 python2.7.10 -v hello.py
+0 0 53512 0 0 1439234499 1439234499 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439236345 1439236345 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439236371 1439236371 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439236414 1439236414 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439236478 1439236479 0 1 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439237312 1439237313 0 1 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439237358 1439237358 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439237389 1439237390 0 1 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439237418 1439237419 0 1 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439237452 1439237453 0 1 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439237483 1439237483 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439237505 1439237505 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439237533 1439237533 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439237558 1439237558 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439237587 1439237588 0 1 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439237609 1439237610 0 1 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439237635 1439237636 0 1 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439237663 1439237664 0 1 python2.7.10 -v -S hello.py
+0 0 53512 0 0 1439237750 1439237751 0 1 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439237768 1439237768 0 0 python2.7.10 -v -S hello.py
+0 256 53512 0 0 1439237817 1439237818 0 1 python2.7.10 -v -S hello.py
+0 0 53512 0 0 1439237902 1439237902 0 0 python2.7.10 -v -S hello.py
+0 0 11469 0 0 1439387151 1439387151 0 0 python2.7.10 -v -S hello.py
+0 512 11469 0 0 1439387807 1439387807 0 0 python2.7.10 -v -S server.py
+0 512 11470 1000000000 1000000000 1439387807 1439387807 0 0 python2.7.10 -v -S client.py
+0 256 11469 0 0 1439387848 1439387848 0 0 python2.7.10 -v -S server.py
+0 512 11470 1000000000 1000000000 1439387848 1439387848 0 0 python2.7.10 -v -S client.py
+0 256 11469 0 0 1439387906 1439387907 0 1 python2.7.10 -v -S server.py
+0 512 11470 1000000000 1000000000 1439387907 1439387907 0 0 python2.7.10 -v -S client.py
+0 0 11470 1000000000 1000000000 1439388010 1439388010 0 0 python2.7.10 -v -S client.py
+0 0 11469 0 1000000000 1439388009 1439388010 1 1 python2.7.10 -v -S server.py
+0 0 11469 0 1000000000 1439388412 1439388412 1 0 python2.7.10 -v -S server.py
+0 0 11470 1000000000 1000000000 1439388412 1439388413 0 1 python2.7.10 -v -S client.py
+0 0 11469 0 1000000000 1439388510 1439388510 1 0 python2.7.10 -v -S server.py
+0 0 11470 1000000000 1000000000 1439388510 1439388510 0 0 python2.7.10 -v -S client.py
+0 0 11469 0 1000000000 1439388553 1439388554 1 1 python2.7.10 -S server.py
+0 0 11470 1000000000 1000000000 1439388554 1439388554 0 0 python2.7.10 -S client.py
+0 256 53512 200000000 200000000 1439388969 1439388969 0 0 ip link set lo up
+0 256 53513 200000000 200000000 1439388969 1439388969 0 0 ip link show
+0 256 53514 299999999 299999999 1439388969 1439388969 0 0 ip route show table all
+0 256 53515 400000000 400000000 1439388969 1439388969 0 0 ip addr list
+0 256 53512 200000000 200000000 1439389010 1439389011 0 1 ip link set lo up
+0 256 53513 200000000 200000000 1439389010 1439389011 0 1 ip link show
+0 256 53514 299999999 299999999 1439389011 1439389011 0 0 ip route show table all
+0 256 53515 400000000 400000000 1439389011 1439389011 0 0 ip addr list
+0 256 11469 0 0 1439393906 1439393906 0 0 python2.7.10 -S server.py 8888
+0 512 11470 1000000000 1000000000 1439393906 1439393906 0 0 python2.7.10 -S client.py
+0 512 11470 1000000000 1000000000 1439393924 1439393924 0 0 python2.7.10 -S client.py
+0 256 11469 0 0 1439393967 1439393968 0 1 python2.7.10 -S server.py 8888
+0 256 11470 1000000000 1000000000 1439393968 1439393968 0 0 python2.7.10 -S client.py
+0 0 11469 0 1000000000 1439394028 1439394029 1 1 python2.7.10 -S server.py 8888
+0 0 11470 1000000000 1000000000 1439394029 1439394029 0 0 python2.7.10 -S client.py
+0 0 11469 0 1000000000 1439396728 1439396729 1 1 python2.7.10 -S server.py 8888
+0 0 11470 1000000000 1000000000 1439396728 1439396729 0 1 python2.7.10 -S client.py
+0 0 11469 0 1000000000 1439396811 1439396812 1 1 python2.7.10 -S server.py 8888
+0 0 11470 1000000000 1000000000 1439396812 1439396812 0 0 python2.7.10 -S client.py
+0 0 11469 0 1000000000 1439396833 1439396920 1 87 python2.7.10 -S server.py 8888
+0 0 11470 1000000000 1000000000 1439396914 1439396920 0 6 python2.7.10 -S client.py
+0 0 11469 0 1000000000 1439397167 1439397167 1 0 python2.7.10 -S server.py 8888
+0 0 11470 1000000000 1000000000 1439397167 1439397167 0 0 python2.7.10 -S client.py
+0 0 11469 0 0 1439399888 1439399891 0 3 python2.7.10 -S pox-dce.py log.level --DEBUG forwarding.l2_learning
+0 0 64966 0 0 1439400702 1439400705 0 3 python2.7.10 -v -S pox-dce.py log.level --DEBUG forwarding.l2_learning
+0 0 64966 0 0 1439400769 1439400772 0 3 python2.7.10 -S pox-dce.py log.level --DEBUG forwarding.l2_learning
+0 0 64966 0 0 1439401083 1439401086 0 3 python2.7.10 -S pox-dce.py
+0 0 64966 0 0 1439401668 1439401670 0 2 python2.7.10 -S pox-dce.py log.level --DEBUG --address=192.168.1.2 forwarding.l2_learning
+0 0 64966 0 0 1439401725 1439401728 0 3 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG --address=192.168.1.2 forwarding.l2_learning
+0 0 64966 0 0 1439401773 1439401776 0 3 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG --address=192.168.1.2 forwarding.l2_learning
+0 0 64966 0 0 1439401813 1439401815 0 2 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG --address=192.168.1.2 forwarding.l2_learning
+0 0 64966 0 0 1439402520 1439402523 0 3 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG --address=192.168.1.2 forwarding.l2_learning
+0 0 64966 0 0 1439402947 1439402949 0 2 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG --address=192.168.1.2 forwarding.l2_learning
+0 0 53512 0 0 1439403722 1439403724 0 2 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439403766 1439403769 0 3 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439403947 1439403949 0 2 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439405899 1439405901 0 2 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439406031 1439406034 0 3 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 11469 0 1000000000 1439406524 1439406524 1 0 python2.7.10 -v -S server.py 8888
+0 0 11470 1000000000 1000000000 1439406524 1439406524 0 0 python2.7.10 -v -S client.py
+0 256 64966 0 0 1439406999 1439406999 0 0 python2.7.10 -v -S server.py 8888
+0 256 64966 0 0 1439407025 1439407026 0 1 python2.7.10 -v -S server.py 8888
+0 256 64966 0 0 1439407142 1439407143 0 1 python2.7.10 -v -S server.py 8888
+0 0 64966 0 1007215998 1439407623 1439407623 1.00722 0 python2.7.10 -v -S server.py 8888
+0 0 53512 0 0 1439407825 1439407827 0 2 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439408123 1439408125 0 2 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439408173 1439408176 0 3 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439408204 1439408206 0 2 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439408939 1439408941 0 2 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439409312 1439409314 0 2 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 256 53512 0 0 1439409519 1439409519 0 0 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 256 53512 0 0 1439409558 1439409559 0 1 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 256 53512 0 0 1439409579 1439409579 0 0 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 256 53512 0 0 1439409609 1439409610 0 1 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 256 53512 0 0 1439409649 1439409650 0 1 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 256 53512 0 0 1439409684 1439409684 0 0 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 256 53512 0 0 1439409842 1439409842 0 0 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439409860 1439409862 0 2 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439410088 1439410091 0 3 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439410284 1439410287 0 3 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439412016 1439412019 0 3 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439412860 1439412862 0 2 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439413213 1439413216 0 3 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439413339 1439413341 0 2 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439413539 1439413541 0 2 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 256 53512 0 0 1439413729 1439413730 0 1 python2.7.10 -S pox-dce.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439822567 1439822570 0 3 python2.7.10 -S pox.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 53512 0 0 1439822923 1439822925 0 2 python2.7.10 -S pox.py --unthreaded-sh log.level --DEBUG forwarding.l2_learning
+0 0 64966 0 1007215998 1439836339 1439836340 1.00722 1 python2.7.10 -v -S server.py 8888
+0 0 64966 0 1007215998 1440008694 1440008695 1.00722 1 python2.7.10 -v -S server.py 8888
+0 256 64966 0 0 1440085651 1440085651 0 0 python2.7.10 -v -S server.py 8888
+0 0 64966 0 1007215998 1440086754 1440086755 1.00722 1 python2.7.10 -v -S server.py 8888
+0 256 53512 0 0 1440602237 1440602238 0 1 python2-dce -S ryu/bin/ryu-manager --verbose ryu/ryu/app/simple_switch.py
+0 512 53512 0 0 1440602377 1440602378 0 1 python2-dce -S pox/pox.py --unthreaded-sh log.level --DEBUG openflow.of_01 openflow.discovery openflow.spanning_tree forwarding.l2_learning
+0 256 53512 0 0 1440602452 1440602452 0 0 python2-dce -S ryu/bin/ryu-manager --verbose ryu/ryu/app/simple_switch.py
+0 512 53512 0 0 1440604038 1440604038 0 0 python2-dce -S ryu-manager --verbose ryu/ryu/app/simple_switch.py
+0 256 53512 0 0 1440604086 1440604086 0 0 python2-dce -S ryu-manager --verbose ryu/ryu/app/simple_switch.py
+0 256 53512 0 0 1440604757 1440604759 0 2 python2-dce -S ryu-manager --verbose ryu/ryu/app/simple_switch.py
+0 256 53512 0 0 1440607601 1440607602 0 1 python2-dce -S ryu-manager --verbose ryu/ryu/app/simple_switch.py
+0 256 53512 0 0 1440608008 1440608008 0 0 python2-dce -S ryu/bin/ryu.py --verbose ryu/ryu/app/simple_switch.py
+0 256 53512 0 0 1440608074 1440608075 0 1 python2-dce -S ryu/bin/ryu.py --verbose ryu/ryu/app/simple_switch.py
+0 256 53512 0 0 1440608128 1440608128 0 0 python2-dce -S ryu/bin/ryu.py --verbose ryu/ryu/app/simple_switch.py
+0 256 53512 0 0 1440608157 1440608158 0 1 python2-dce -S ryu/bin/ryu.py --verbose ryu/ryu/app/simple_switch.py
+0 256 53512 0 0 1440608198 1440608199 0 1 python2-dce -S ryu/bin/ryu.py --verbose ryu/ryu/app/simple_switch.py
+0 512 53512 0 0 1440622931 1440622931 0 0 python2-dce -S ryu.py --verbose ryu/app/simple_switch.py
+0 512 53512 0 0 1440623001 1440623001 0 0 python2-dce -S ryu.py --verbose ryu/app/simple_switch.py
+0 256 53512 0 0 1440623039 1440623039 0 0 python2-dce -S ryu.py --verbose ryu/app/simple_switch.py
+0 256 53512 0 0 1440624410 1440624411 0 1 python2-dce -S ryu.py --verbose ryu/app/simple_switch.py
+0 256 53512 0 0 1440624570 1440624570 0 0 python2-dce -S ryu.py --verbose ryu/app/simple_switch.py
+0 256 53512 0 0 1440624904 1440624905 0 1 python2-dce -S ryu.py --verbose ryu/app/simple_switch.py
+0 256 53512 0 0 1440625304 1440625305 0 1 python2-dce -S ryu.py --verbose ryu/app/simple_switch.py
+0 256 53512 0 0 1440625469 1440625471 0 2 python2-dce -S ryu.py --verbose ryu/app/simple_switch.py
+0 512 53512 0 0 1440694709 1440694711 0 2 python2-dce -S ryu.py --verbose ryu/app/simple_switch.py
+0 256 53512 0 0 1440694763 1440694763 0 0 python2-dce -S ryu/bin/ryu-manager --verbose ryu/app/simple_switch.py
+0 256 53512 0 0 1440694882 1440694883 0 1 python2-dce -S ryu/ryu-manager --verbose ryu/app/simple_switch.py
+0 256 53512 0 0 1440695486 1440695488 0 2 python2-dce -S ryu-manager --verbose ryu/app/simple_switch.py
+0 256 53512 0 0 1440697933 1440697934 0 1 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440698377 1440698378 0 1 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 0 53512 0 0 1440700110 1440700112 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440702199 1440702200 0 1 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440702348 1440702348 0 0 python2-dce -S ryu-manager --verbose --enable-debugger=True ryu/app/simple_switch.py
+0 512 53512 0 0 1440702376 1440702378 0 2 python2-dce -S ryu-manager --verbose --enable-debugger=True ryu/app/simple_switch.py
+0 0 53512 0 0 1440703444 1440703446 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 0 53512 0 0 1440705604 1440705607 0 3 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440706144 1440706145 0 1 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 512 53512 0 0 1440707560 1440707561 0 1 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440707585 1440707586 0 1 python2-dce -S bin/ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440708334 1440708336 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440708600 1440708601 0 1 python2-dce -S pox.py --unthreaded-sh log.level --DEBUG openflow.of_01 openflow.discovery openflow.spanning_tree forwarding.l2_learning
+0 0 53512 0 0 1440708629 1440708632 0 3 python2-dce -S pox.py --unthreaded-sh log.level --DEBUG openflow.of_01 openflow.discovery openflow.spanning_tree forwarding.l2_learning
+0 256 53512 0 0 1440708875 1440708877 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440708902 1440708904 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 0 53512 0 0 1440709247 1440709249 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440709341 1440709343 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440709361 1440709363 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440709376 1440709378 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440709422 1440709424 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440709461 1440709463 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 0 53512 0 0 1440709513 1440709515 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440709575 1440709578 0 3 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440709720 1440709721 0 1 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 0 53512 0 0 1440709757 1440709759 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 0 53512 0 0 1440709785 1440709788 0 3 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 0 53512 0 0 1440709818 1440709821 0 3 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440709859 1440709861 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440709874 1440709876 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 0 53512 0 0 1440709978 1440709981 0 3 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 0 53512 0 0 1440710306 1440710308 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 0 53512 0 0 1440710469 1440710471 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 0 53512 0 0 1440710800 1440710802 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440711231 1440711232 0 1 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 0 53512 0 0 1440711245 1440711247 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440712270 1440712270 0 0 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440712296 1440712297 0 1 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1440712363 1440712364 0 1 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1441031828 1441031830 0 2 python2-dce -v -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1441031862 1441031864 0 2 python2-dce -v -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1441031906 1441031908 0 2 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+0 256 53512 0 0 1441034273 1441034274 0 1 python2-dce -S ryu-manager --verbose --enable-debugger ryu/app/simple_switch.py
+1 512 39770 0 0 1441211823 1441211826 0 3 python2-dce -S ryu-manager ryu/app/simple_switch.py

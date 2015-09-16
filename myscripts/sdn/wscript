@@ -1,0 +1,19 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+import ns3waf
+import os
+
+def configure(conf):
+    ns3waf.check_modules(conf, ['core', 'network', 'applications', 'internet', 'dce', 'layer2-p2p', 'point-to-point', 'sdn', 'mpi' ], mandatory = True)
+
+def build(bld):
+    bld.build_a_script('dce', needed = ['core', 'network', 'applications', 'internet', 'dce', 'layer2-p2p', 'point-to-point', 'sdn' ],
+		target='bin/sdn-example-dumbbell',
+		source=['sdn-example-dumbbell.cc'],
+		lib=['fluid_base', 'fluid_msg'],
+		)
+    bld.build_a_script('dce', needed = ['core', 'network', 'applications', 'internet', 'dce', 'layer2-p2p', 'point-to-point', 'sdn', 'mpi' ],
+		target='bin/sdn-dumbbell-distributed',
+		source=['sdn-dumbbell-distributed.cc'],
+		lib=['fluid_base', 'fluid_msg'],
+		)
