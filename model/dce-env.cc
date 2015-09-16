@@ -22,11 +22,6 @@ char * dce_getenv (const char *name)
     }
   return seek_env (name, *penvp);
 }
-char * dce__secure_getenv (const char *name)
-{
-  // XXX
-  return dce_getenv (name);
-}
 
 int dce_putenv (char *string)
 {
