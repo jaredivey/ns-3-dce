@@ -323,6 +323,9 @@ int main (int argc, char *argv[])
       dce.SetBinary ("python2-dce");
       dce.ResetArguments ();
       dce.ResetEnvironment ();
+      dce.AddEnvironment ("PATH", "/:/python2.7:/pox:/ryu");
+      dce.AddEnvironment ("PYTHONHOME", "/:/python2.7:/pox:/ryu");
+      dce.AddEnvironment ("PYTHONPATH", "/:/python2.7:/pox:/ryu");
 //      dce.AddArgument ("-v");
       dce.AddArgument ("-S");
 
@@ -357,9 +360,6 @@ int main (int argc, char *argv[])
           NS_LOG_ERROR ("Unsupported controller choice");
           return 0;
         }
-      dce.AddEnvironment ("PATH", "/:/python2.7:/pox:/ryu");
-      dce.AddEnvironment ("PYTHONHOME", "/:/python2.7:/pox:/ryu");
-      dce.AddEnvironment ("PYTHONPATH", "/:/python2.7:/pox:/ryu");
 
       apps = dce.Install (controllerNodes.Get (i));
       apps.Start (Seconds (0.0));
