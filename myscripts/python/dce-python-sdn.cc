@@ -66,12 +66,12 @@ enum APPCHOICE
 int main (int argc, char *argv[])
 {
   bool verbose = true;
-  uint32_t maxBytes = 500000;
+  uint32_t maxBytes = 5000;
   uint32_t controller = RYU;
   uint32_t appChoice = ON_OFF;
 
   uint32_t numHosts    = 2;
-  uint32_t numSwitches = 1;
+  uint32_t numSwitches = 2;
   uint32_t numControllers = 1;
 
   std::ostringstream oss;
