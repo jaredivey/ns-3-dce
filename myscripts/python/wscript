@@ -5,7 +5,7 @@ import ns3waf
 def configure(conf):
 	conf.load('compiler_c')
 	conf.load('compiler_cxx')
-	ns3waf.check_modules(conf, ['core'], mandatory = True)
+	ns3waf.check_modules(conf, ['core', 'internet', 'applications', 'point-to-point', 'layer2-p2p', 'sdn'], mandatory = True)
 	 
 def build(bld): 
 	bld.build_a_script('dce', needed = ['core', 'internet', 'dce', 'applications', 'point-to-point' ], target='bin/dce-python-hello', source=['dce-python-hello.cc'] )
