@@ -342,7 +342,7 @@ int main (int argc, char *argv[])
       else if (controller==POX)
         {
 //        POX arguments
-          dce.AddArgument ("pox.py");
+          dce.AddArgument ("pox/pox.py");
           dce.AddArgument ("--unthreaded-sh");
           dce.AddArgument ("log.level");
           if (verbose)
