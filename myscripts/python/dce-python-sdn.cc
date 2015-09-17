@@ -81,7 +81,7 @@ int main (int argc, char *argv[])
   cmd.AddValue ("maxBytes",
                 "Total number of bytes for application to send", maxBytes);
   cmd.AddValue ("controller",
-                "Controller to use: (0) libfluid; (1) Ryu; (2) POX", controller);
+                "Controller to use: (0) Ryu; (1) POX", controller);
   cmd.AddValue ("appChoice",
                 "Application to use: (0) Bulk Send; (1) Ping; (2) On Off", appChoice);
   cmd.AddValue ("numSwitches", "Number of switches", numSwitches);
