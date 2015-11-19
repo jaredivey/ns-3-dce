@@ -28,6 +28,8 @@
 #include <fstream>
 #include <vector>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "ns3/core-module.h"
 #include "ns3/point-to-point-module.h"
@@ -38,6 +40,11 @@
 #include "ns3/dce-module.h"
 #include "ns3/SdnSwitch.h"
 #include "ns3/log.h"
+#include "ns3/mpi-interface.h"
+
+#ifdef DCE_MPI
+#include <mpi.h>
+#endif
 
 using namespace ns3;
 
@@ -47,6 +54,40 @@ typedef struct timeval TIMER_TYPE;
 #define TIMER_NOW(_t) gettimeofday (&_t,NULL);
 #define TIMER_SECONDS(_t) ((double)(_t).tv_sec + (_t).tv_usec * 1e-6)
 #define TIMER_DIFF(_t1, _t2) (TIMER_SECONDS (_t1) - TIMER_SECONDS (_t2))
+
+unsigned long
+ReportMemoryUsage()
+{
+  pid_t pid;
+  char work[4096];
+  FILE* f;
+  char* pCh;
+
+  pid = getpid();
+  sprintf(work, "/proc/%d/stat", (int)pid);
+  f = fopen(work, "r");
+  if (f == NULL)
+    {
+      std::cout <<"Can't open " << work << std::endl;
+      return(0);
+    }
+  if(fgets(work, sizeof(work), f) == NULL)
+    std::cout << "Error with fgets" << std::endl;
+  fclose(f);
+  strtok(work, " ");
+  for (int i = 1; i < 23; i++)
+    {
+      pCh = strtok(NULL, " ");
+    }
+  return(atol(pCh));
+}
+
+unsigned long
+ReportMemoryUsageMB()
+{
+  unsigned long u = ReportMemoryUsage();
+  return ((u + 500000) / 1000000 );
+}
 
 NS_LOG_COMPONENT_DEFINE ("DcePythonSdn");
 
@@ -59,20 +100,22 @@ enum CONTROLLER
 enum APPCHOICE
 {
   BULK_SEND,
-  PING,
   ON_OFF,
+  PING,
 } APPCHOICE;
 
 int main (int argc, char *argv[])
 {
-  bool verbose = true;
-  uint32_t maxBytes = 5000;
+  bool verbose = false;
+  uint32_t maxBytes = 5120;
   uint32_t controller = RYU;
   uint32_t appChoice = ON_OFF;
 
-  uint32_t numHosts    = 2;
-  uint32_t numSwitches = 2;
-  uint32_t numControllers = 1;
+  uint32_t numHosts    = 90;
+  uint32_t numSwitches = 24;
+  uint32_t numControllers = 8;
+
+  bool useMpi = true;
 
   std::ostringstream oss;
 
@@ -87,8 +130,27 @@ int main (int argc, char *argv[])
   cmd.AddValue ("numSwitches", "Number of switches", numSwitches);
   cmd.AddValue ("numHosts", "Number of hosts per end switch", numHosts);
   cmd.AddValue ("numControllers", "Number of controllers; switches will be assigned equally across controllers", numControllers);
+  cmd.AddValue ("useMpi", "Use MPI to distribute the workload", useMpi);
 
   cmd.Parse (argc,argv);
+
+  uint32_t systemId = 0;
+  uint32_t systemCount = 1;
+
+  if (useMpi)
+    {
+#ifdef DCE_MPI
+      GlobalValue::Bind ("SimulatorImplementationType",
+                         StringValue ("ns3::NullMessageSimulatorImpl"));
+      // Enable parallel simulator with the command line arguments
+      MpiInterface::Enable (&argc, &argv);
+
+      systemId = MpiInterface::GetSystemId ();
+      systemCount = MpiInterface::GetSize ();
+#else
+	  NS_FATAL_ERROR ("Can't use distributed simulator without MPI compiled in");
+#endif
+    }
 
   if (verbose)
     {
@@ -97,21 +159,43 @@ int main (int argc, char *argv[])
     }
 
   NS_ASSERT_MSG (numSwitches % numControllers == 0, "Number of switches must be a multiple of number of controllers.");
+  NS_ASSERT_MSG (numControllers % systemCount == 0, "Number of controllers must be a multiple of number of LPs.");
   NS_ASSERT_MSG (numSwitches % 2 == 0, "Number of switches must be even.");
 
   TIMER_TYPE t0, t1, t2;
   TIMER_NOW (t0);
 
   NodeContainer nodes, controllerNodes, switchNodes, leftNodes, rightNodes;
-  controllerNodes.Create (numControllers);
-  switchNodes.Create (numSwitches);
-  leftNodes.Create (numHosts*numSwitches/2);
-  rightNodes.Create (numHosts*numSwitches/2);
+  for (uint32_t i = 0; i < systemCount; ++i)
+    {
+	  controllerNodes.Create (numControllers / systemCount, i);
+	  nodes.Add (controllerNodes);
 
-  nodes.Add (controllerNodes);
-  nodes.Add (switchNodes);
-  nodes.Add (leftNodes);
-  nodes.Add (rightNodes);
+	  switchNodes.Create (numSwitches / systemCount, i);
+	  nodes.Add (switchNodes);
+
+	  if (systemCount > 1)
+	    {
+		  if (i < systemCount / 2)
+		    {
+			  leftNodes.Create ((numHosts*numSwitches) / systemCount, i);
+			  nodes.Add (leftNodes);
+		    }
+		  else
+		    {
+			  rightNodes.Create ((numHosts*numSwitches) / systemCount, i);
+			  nodes.Add (rightNodes);
+		    }
+	    }
+	  // For one LP, simply create all end hosts on it.
+	  else
+	    {
+		  leftNodes.Create ((numHosts*numSwitches/2) / systemCount, i);
+		  nodes.Add (leftNodes);
+		  rightNodes.Create ((numHosts*numSwitches/2) / systemCount, i);
+		  nodes.Add (rightNodes);
+	    }
+    }
 
   NS_LOG_INFO ("Create channels.");
   Layer2P2PHelper layer2P2P;
@@ -156,13 +240,21 @@ int main (int argc, char *argv[])
        switchToControllerContainers.push_back (pointToPoint.Install (switchNodes.Get (j), controllerNodes.Get (j / numConRegions)));
      }
 
-  DceManagerHelper dceManager;
-  dceManager.SetVirtualPath ("/home/ubuntu/dce/build/lib/python2.7:/home/ubuntu/dce/build/lib/python2.7/ryu");
-  dceManager.Install (controllerNodes);
-
-
   InternetStackHelper stack;
-  stack.Install (nodes);
+  stack.Install (controllerNodes);
+  stack.Install (switchNodes);
+  stack.Install (leftNodes);
+  stack.Install (rightNodes);
+
+  if (useMpi)
+    {
+#ifdef DCE_MPI
+      MPI_Barrier (MPI_COMM_WORLD);
+#endif
+    }
+
+  DceManagerHelper dceManager;
+  dceManager.Install (controllerNodes);
 
   NS_LOG_INFO ("Assign IP Addresses.");
   Ipv4AddressHelper ipv4;
@@ -170,7 +262,7 @@ int main (int argc, char *argv[])
 
   oss.str ("");
   oss << "10.0.0.0";
-  ipv4.SetBase (oss.str ().c_str (), "255.255.255.0");
+  ipv4.SetBase (oss.str ().c_str (), "255.0.0.0");
 
   for (uint32_t i=0; i < leftHostToSwitchContainers.size(); ++i)
     {
@@ -197,8 +289,8 @@ int main (int argc, char *argv[])
   for (uint32_t i=0; i < switchToControllerContainers.size(); ++i)
     {
       oss.str ("");
-      oss << "192.168." << i+1 << ".0";
-      ipv4.SetBase (oss.str ().c_str (), "255.255.255.0");
+      oss << "192." << i+168 << ".0.0";
+      ipv4.SetBase (oss.str ().c_str (), "255.255.0.0");
       switchToControllerIPContainers.push_back(ipv4.Assign (switchToControllerContainers[i]));
     }
 
@@ -209,10 +301,11 @@ int main (int argc, char *argv[])
 
   Ptr<UniformRandomVariable> randTime = CreateObject<UniformRandomVariable>();
   randTime->SetAttribute ("Min", DoubleValue(30));
-  randTime->SetAttribute ("Max", DoubleValue(60));
+  randTime->SetAttribute ("Max", DoubleValue(360));
 
   for (uint32_t i = 0; i < leftNodes.GetN(); ++i)
     {
+	  double startTime = randTime->GetValue ();
       if (appChoice == BULK_SEND)
         {
           ApplicationContainer sourceApp;
@@ -225,59 +318,11 @@ int main (int argc, char *argv[])
           // Set the amount of data to send in bytes.  Zero is unlimited.
           source.SetAttribute ("MaxBytes", UintegerValue (maxBytes));
 
-          sourceApp = source.Install (leftNodes.Get (i));
-          sourceApp.Start (Seconds (randTime->GetValue()));
-          sourceApps.Add(sourceApp);
-        }
-      else if (appChoice == PING)
-        {
-          for (uint32_t j = 0; j < numHosts; ++j)
+          if (i / (numSwitches * numHosts / systemCount) == systemId)
             {
-              NS_LOG_INFO ("PING app to address: " << rightHostToSwitchIPContainers[j].GetAddress(1));
-              V4PingHelper source1 (rightHostToSwitchIPContainers[j].GetAddress(1));
-              source1.SetAttribute ("Verbose", BooleanValue (true));
-              source1.SetAttribute ("PingAll", BooleanValue (true));
-              source1.SetAttribute ("Count", UintegerValue (1));
-
-              NS_LOG_INFO ("PING app to address: " << leftHostToSwitchIPContainers[j].GetAddress(0));
-              V4PingHelper source2 (leftHostToSwitchIPContainers[j].GetAddress(0));
-              source2.SetAttribute ("Verbose", BooleanValue (true));
-              source2.SetAttribute ("PingAll", BooleanValue (true));
-              source2.SetAttribute ("Count", UintegerValue (1));
-
-              ApplicationContainer sourceAppL2R;
-              sourceAppL2R = source1.Install (leftNodes.Get (i));
-              if ((i == 0) && (j == 0))
-                {
-                  sourceAppL2R.Start (Seconds (randTime->GetValue()));
-                  sourceApps.Add(sourceAppL2R);
-                }
-              else
-                {
-                  sourceAppL2R.Start (Seconds (REALLY_BIG_TIME));
-                  sourceApps.Add(sourceAppL2R);
-                }
-
-              ApplicationContainer sourceAppL2L;
-              if (i != j)
-                {
-                  sourceAppL2L = source2.Install (leftNodes.Get (i));
-                  sourceAppL2L.Start (Seconds (REALLY_BIG_TIME));
-                  sourceApps.Add(sourceAppL2L);
-                }
-
-              ApplicationContainer sourceAppR2L;
-              sourceAppR2L = source2.Install (rightNodes.Get (i));
-              sourceAppR2L.Start (Seconds (REALLY_BIG_TIME));
-              sourceApps.Add(sourceAppR2L);
-
-              ApplicationContainer sourceAppR2R;
-              if (i != j)
-                {
-                  sourceAppR2R = source1.Install (rightNodes.Get (i));
-                  sourceAppR2R.Start (Seconds (REALLY_BIG_TIME));
-                  sourceApps.Add(sourceAppR2R);
-                }
+              sourceApp = source.Install (leftNodes.Get (i));
+              sourceApp.Start (Seconds (startTime));
+              sourceApps.Add(sourceApp);
             }
         }
       else if (appChoice == ON_OFF)
@@ -291,10 +336,64 @@ int main (int argc, char *argv[])
           source.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
           source.SetAttribute ("MaxBytes", UintegerValue (maxBytes));
 
-          sourceApp = source.Install (leftNodes.Get (i));
-          sourceApp.Start (Seconds (randTime->GetValue()));
-          sourceApps.Add(sourceApp);
+          if (i / (numSwitches * numHosts / systemCount) == systemId)
+            {
+              sourceApp = source.Install (leftNodes.Get (i));
+              sourceApp.Start (Seconds (startTime));
+              sourceApps.Add(sourceApp);
+            }
         }
+//      else if (appChoice == PING)
+//        {
+//          for (uint32_t j = 0; j < numHosts; ++j)
+//            {
+//              NS_LOG_INFO ("PING app to address: " << rightHostToSwitchIPContainers[j].GetAddress(1));
+//              V4PingHelper source1 (rightHostToSwitchIPContainers[j].GetAddress(1));
+//              source1.SetAttribute ("Verbose", BooleanValue (true));
+//              source1.SetAttribute ("PingAll", BooleanValue (true));
+//              source1.SetAttribute ("Count", UintegerValue (1));
+//
+//              NS_LOG_INFO ("PING app to address: " << leftHostToSwitchIPContainers[j].GetAddress(0));
+//              V4PingHelper source2 (leftHostToSwitchIPContainers[j].GetAddress(0));
+//              source2.SetAttribute ("Verbose", BooleanValue (true));
+//              source2.SetAttribute ("PingAll", BooleanValue (true));
+//              source2.SetAttribute ("Count", UintegerValue (1));
+//
+//              ApplicationContainer sourceAppL2R;
+//              sourceAppL2R = source1.Install (leftNodes.Get (i));
+//              if ((i == 0) && (j == 0))
+//                {
+//                  sourceAppL2R.Start (Seconds (randTime->GetValue()));
+//                  sourceApps.Add(sourceAppL2R);
+//                }
+//              else
+//                {
+//                  sourceAppL2R.Start (Seconds (REALLY_BIG_TIME));
+//                  sourceApps.Add(sourceAppL2R);
+//                }
+//
+//              ApplicationContainer sourceAppL2L;
+//              if (i != j)
+//                {
+//                  sourceAppL2L = source2.Install (leftNodes.Get (i));
+//                  sourceAppL2L.Start (Seconds (REALLY_BIG_TIME));
+//                  sourceApps.Add(sourceAppL2L);
+//                }
+//
+//              ApplicationContainer sourceAppR2L;
+//              sourceAppR2L = source2.Install (rightNodes.Get (i));
+//              sourceAppR2L.Start (Seconds (REALLY_BIG_TIME));
+//              sourceApps.Add(sourceAppR2L);
+//
+//              ApplicationContainer sourceAppR2R;
+//              if (i != j)
+//                {
+//                  sourceAppR2R = source1.Install (rightNodes.Get (i));
+//                  sourceAppR2R.Start (Seconds (REALLY_BIG_TIME));
+//                  sourceApps.Add(sourceAppR2R);
+//                }
+//            }
+//        }
     }
 
 //
@@ -305,7 +404,10 @@ int main (int argc, char *argv[])
                          InetSocketAddress (Ipv4Address::GetAny (), port));
   for (uint32_t i = 0; i < rightNodes.GetN (); ++i)
     {
-      sinkApps.Add(sink.Install (rightNodes.Get (i)));
+      if ((systemCount == 1) || ((i + leftNodes.GetN ()) / (numSwitches * numHosts / systemCount) == systemId))
+        {
+    	  sinkApps.Add(sink.Install (rightNodes.Get (i)));
+        }
     }
   sinkApps.Start (Seconds (0.0));
 
@@ -361,9 +463,12 @@ int main (int argc, char *argv[])
           return 0;
         }
 
-      apps = dce.Install (controllerNodes.Get (i));
-      apps.Start (Seconds (0.0));
+      if (i / (numControllers / systemCount) == systemId)
+        {
+          apps.Add (dce.Install (controllerNodes.Get (i)));
+        }
     }
+  apps.Start (Seconds (0.0));
 
 //
 // Install Switch.
@@ -371,8 +476,12 @@ int main (int argc, char *argv[])
   for (uint32_t j = 0; j < switchNodes.GetN(); ++j)
     {
       Ptr<SdnSwitch> sdnS = CreateObject<SdnSwitch> ();
-      sdnS->SetStartTime (Seconds (j + 1.0 + 0.1*(double)(j)));
-      switchNodes.Get (j)->AddApplication (sdnS);
+      sdnS->SetStartTime (Seconds ((double)(j)*0.1));
+
+      if (j / (numSwitches / systemCount) == systemId)
+        {
+          switchNodes.Get (j)->AddApplication (sdnS);
+        }
     }
 
 //
@@ -381,7 +490,7 @@ int main (int argc, char *argv[])
   NS_LOG_INFO ("Run Simulation.");
   TIMER_NOW (t1);
 
-  Simulator::Stop (Seconds(300));
+  Simulator::Stop (Seconds(480));
   Simulator::Run ();
   TIMER_NOW (t2);
 
@@ -398,12 +507,41 @@ int main (int argc, char *argv[])
   double simTime = Simulator::Now().GetSeconds();
   double d1 = TIMER_DIFF (t1, t0) + TIMER_DIFF (t2, t1);
 
-  std::cout << (controller ? "POX\t" : "Ryu\t") << numControllers << "\t" << numSwitches << "\t";
-  std::cout << numHosts << "\t" << simTime << "\t" << d1;
-  std::cout << "\t" << totalRx;
-  std::cout << "\t" << (V4Ping::m_totalSend - V4Ping::m_totalRecv);
-  std::cout << "\t" << V4Ping::m_totalSend << "\t" << V4Ping::m_totalRecv << std::endl;
+  unsigned long memUse = ReportMemoryUsageMB ();
+
+  uint32_t allTotalRx = 0;
+  unsigned long allMemUse = 0;
+  double maxTimeDiff = 0.0;
+  if (useMpi)
+    {
+#ifdef DCE_MPI
+	  MPI_Allreduce (&totalRx, &allTotalRx, 1, MPI_UNSIGNED, MPI_SUM, MPI_COMM_WORLD);
+	  MPI_Allreduce (&memUse, &allMemUse, 1, MPI_UNSIGNED_LONG, MPI_SUM, MPI_COMM_WORLD);
+	  MPI_Allreduce (&d1, &maxTimeDiff, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+#endif
+    }
+  else
+    {
+	  allTotalRx = totalRx;
+	  allMemUse = memUse;
+	  maxTimeDiff = d1;
+    }
 
   Simulator::Destroy ();
+
+  if (useMpi)
+    {
+	  // Exit the MPI execution environment
+	  MpiInterface::Disable ();
+    }
+
+  if (systemId == 0)
+    {
+	  std::cout << (controller ? "POX\t" : "Ryu\t") << numControllers << "\t" << numSwitches << "\t";
+      std::cout << numHosts << "\t" << simTime << "\t";
+      std::cout << allTotalRx << "\t" << allMemUse << "\t" << maxTimeDiff << std::endl;
+//	  std::cout << "\t" << (V4Ping::m_totalSend - V4Ping::m_totalRecv);
+//	  std::cout << "\t" << V4Ping::m_totalSend << "\t" << V4Ping::m_totalRecv << std::endl;
+    }
   return 0;
 }
