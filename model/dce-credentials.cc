@@ -59,6 +59,12 @@ int dce_chown(const char *path, uid_t owner, gid_t group)
   return 0;
 }
 
+int dce_chmod(const char *path, mode_t mode)
+{
+  // XXX
+  return 0;
+}
+
 int dce_initgroups(const char *user, gid_t group)
 {
   // XXX

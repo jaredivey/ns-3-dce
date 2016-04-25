@@ -261,6 +261,7 @@ DCE (daemon)
 DCE (alarm)
 DCE (readlink)
 DCE (chown)
+DCE (chmod)
 DCE (initgroups)
 DCE (fsync)
 

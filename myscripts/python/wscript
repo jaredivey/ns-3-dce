@@ -5,11 +5,12 @@ import ns3waf
 def configure(conf):
 	conf.load('compiler_c')
 	conf.load('compiler_cxx')
-	ns3waf.check_modules(conf, ['core', 'internet', 'applications', 'point-to-point', 'layer2-p2p', 'mpi', 'sdn', 'mobility', 'wifi', 'bridge', 'layer2-p2p', 'netanim'], mandatory = True)
+	ns3waf.check_modules(conf, ['core', 'internet', 'applications', 'point-to-point', 'layer2-p2p', 'mpi', 'sdn'], mandatory = True)
 	 
 def build(bld): 
 	bld.build_a_script('dce', needed = ['core', 'internet', 'dce', 'applications', 'point-to-point' ], target='bin/dce-python-hello', source=['dce-python-hello.cc'] )
 	bld.build_a_script('dce', needed = ['core', 'internet', 'network', 'point-to-point', 'layer2-p2p', 'mpi', 'sdn', 'dce' ], target='bin/dce-python-sdn', source=['dce-python-sdn.cc'] )
+	bld.build_a_script('dce', needed = ['core', 'internet', 'network', 'point-to-point', 'layer2-p2p', 'mpi', 'sdn', 'dce' ], target='bin/dce-python-sdn13', source=['dce-python-sdn13.cc'] )
 	bld.build_a_script('dce', needed = ['core', 'internet', 'network', 'point-to-point', 'layer2-p2p', 'sdn', 'applications', 'dce' ], target='bin/PADS-noController', source=['PADS-noController.cc'] )
  	bld.build_a_script('dce', needed = ['core', 'internet', 'network', 'point-to-point', 'layer2-p2p', 'sdn', 'applications', 'dce' ], target='bin/PADS-controller-simple-v1', source=['PADS-controller-simple-v1.cc'] )
  	bld.build_a_script('dce', needed = ['core', 'internet', 'network', 'point-to-point', 'layer2-p2p', 'sdn', 'applications', 'dce' ], target='bin/PADS-noController-v2', source=['PADS-noController-v2.cc'] )
@@ -18,4 +19,3 @@ def build(bld):
  	bld.build_a_script('dce', needed = ['core', 'internet', 'network', 'point-to-point', 'layer2-p2p', 'sdn', 'applications', 'dce' ], target='bin/PADS-noController-debug-v2', source=['PADS-noController-debug-v2.cc'] )
  	bld.build_a_script('dce', needed = ['core', 'internet', 'network', 'point-to-point', 'layer2-p2p', 'sdn', 'applications', 'dce' ], target='bin/PADS-multiple-controller-v1', source=['PADS-multiple-controller-v1.cc'] )
  	bld.build_a_script('dce', needed = ['core', 'internet', 'network', 'point-to-point', 'layer2-p2p', 'sdn', 'applications', 'dce' ], target='bin/PADS-datacenter-v1', source=['PADS-datacenter-v1.cc'] )
-	bld.build_a_script('dce', needed = ['core', 'internet', 'dce', 'applications', 'point-to-point', 'mobility', 'wifi', 'bridge', 'layer2-p2p', 'sdn', 'netanim' ], target='bin/dce-python-rap', source=['dce-python-rap.cc'] )
