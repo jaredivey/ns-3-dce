@@ -288,7 +288,7 @@ DCE (fsetpos)
 DCE (printf)
 NATIVE (fprintf)
 NATIVE_WITH_ALIAS2 (sprintf, __sprintf_chk)
-DCE (asprintf)
+DCE_WITH_ALIAS2 (asprintf, __asprintf)
 DCE (vasprintf)
 NATIVE (dprintf)
 NATIVE (vdprintf)
@@ -651,6 +651,9 @@ NATIVE (ldexp)
 
 // libio.h
 NATIVE (__uflow)
+
+// libintl.h
+NATIVE (__dcgettext)
 
 NATIVE (dl_iterate_phdr)
 #undef DCE

@@ -429,7 +429,7 @@ int main (int argc, char *argv[])
       dce.AddEnvironment ("PYTHONHOME", "/:/python2.7:/pox:/ryu");
       dce.AddEnvironment ("PYTHONPATH", "/:/python2.7:/pox:/ryu");
 //      dce.AddArgument ("-v");
-      dce.AddArgument ("-S");
+//      dce.AddArgument ("-S");
 
       if (controller==RYU)
         {

@@ -100,6 +100,7 @@
 #include <math.h>
 #include <assert.h>
 #include <link.h>
+#include <libintl.h>
 
 extern void __cxa_finalize (void *d);
 extern int __cxa_atexit (void (*func)(void *), void *arg, void *d);
@@ -160,6 +161,9 @@ extern int __REDIRECT (__open_alias, (const char *__path, int __oflag, ...),
 
 // from glibc's bits/select2.h
 extern long int __fdelt_chk (long int __d);
+
+extern char *__dcgettext(const char *domainname,
+                         const char *msgid, int category);
 
 typedef void (*func_t)(...);
 

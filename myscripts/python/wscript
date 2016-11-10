@@ -10,7 +10,7 @@ def configure(conf):
 def build(bld): 
 	bld.build_a_script('dce', needed = ['core', 'internet', 'dce', 'applications', 'point-to-point' ], target='bin/dce-python-hello', source=['dce-python-hello.cc'] )
 	bld.build_a_script('dce', needed = ['core', 'internet', 'network', 'point-to-point', 'layer2-p2p', 'mpi', 'sdn', 'dce' ], target='bin/dce-python-sdn', source=['dce-python-sdn.cc'] )
-	bld.build_a_script('dce', needed = ['core', 'internet', 'network', 'point-to-point', 'layer2-p2p', 'mpi', 'sdn', 'dce' ], target='bin/dce-python-sdn13', source=['dce-python-sdn13.cc'] )
+	#bld.build_a_script('dce', needed = ['core', 'internet', 'network', 'point-to-point', 'layer2-p2p', 'mpi', 'sdn', 'dce' ], target='bin/dce-python-sdn13', source=['dce-python-sdn13.cc'] )
 	bld.build_a_script('dce', needed = ['core', 'internet', 'network', 'point-to-point', 'layer2-p2p', 'sdn', 'applications', 'dce' ], target='bin/PADS-noController', source=['PADS-noController.cc'] )
  	bld.build_a_script('dce', needed = ['core', 'internet', 'network', 'point-to-point', 'layer2-p2p', 'sdn', 'applications', 'dce' ], target='bin/PADS-controller-simple-v1', source=['PADS-controller-simple-v1.cc'] )
  	bld.build_a_script('dce', needed = ['core', 'internet', 'network', 'point-to-point', 'layer2-p2p', 'sdn', 'applications', 'dce' ], target='bin/PADS-noController-v2', source=['PADS-noController-v2.cc'] )
